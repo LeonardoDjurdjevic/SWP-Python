@@ -1,1 +1,1 @@
-{"player": 1, "cpu": 0, "draws": 0, "rock": 1, "paper": 0, "scissors": 1, "spock": 0, "lizard": 0}
+{"player": 7, "cpu": 7, "draws": 6, "rock": 12, "paper": 6, "scissors": 0, "spock": 1, "lizard": 1}

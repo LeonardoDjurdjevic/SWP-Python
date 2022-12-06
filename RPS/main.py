@@ -1,14 +1,27 @@
 import random
 import json
-import operator
-
 
 shapes = ["rock", "paper", "scissors", "spock", "lizard"]
 countValues = {"player": 0, "cpu": 0, "draws": 0, "rock": 0, "paper": 0, "scissors": 0, "spock": 0, "lizard": 0}
+dataFile = {}
+weight = [0, 0, 0, 0, 0]
 
 
 def pickCPU():
-    return shapes[random.randint(0, 4)]
+    count = 0
+    for key in dataFile:
+        if "player" not in key and "cpu" not in key and "draws" not in key:
+            if dataFile[key] == 0:
+                weight[count] = dataFile[key] + 0.01
+            else:
+                weight[count] = dataFile[key]
+            count += 1
+
+    move = weight[len(weight) - 1]
+    weight.remove(weight[len(weight) - 1])
+    weight.insert(0, move)
+    choice = random.choices(shapes, k=1, weights=weight)
+    return choice[0]
 
 
 def checkWinner(player, cpu):
@@ -28,63 +41,91 @@ def checkWinner(player, cpu):
     return winner
 
 
-def combine(a, b, op=operator.add):
-    return dict(a.items() + b.items() +
-        [(k, op(a[k], b[k])) for k in set(b) & set(a)])
+def reset():
+    dataFile = {"player": 0, "cpu": 0, "draws": 0, "rock": 0, "paper": 0, "scissors": 0, "spock": 0, "lizard": 0}
+    countValues = dataFile
+    weight = [0, 0, 0, 0, 0]
+    f = open("save.txt", "w")
+    json.dump(dataFile, f)
+    f.close()
+
+
+def combine(a, b):
+    for key in a:
+        dataFile[key] = a[key] + b[key]
+    return a
 
 
 def update():
     f = open("save.txt", "r")
-    x = f.read()
-    print(json.load(x))
-
+    saved = f.read()
+    if saved:
+        save_json = json.loads(saved)
+        combine(countValues, save_json)
+    f.close()
+    f = open("save.txt", "w")
+    json.dump(dataFile, f)
+    f.close()
 
 
 def game():
-    gameStatus = 1
+    update()
+    wrong = 1
     print("Welcome to Rock-Paper-Scissors-Spock-Lizard!\n")
-    while gameStatus == 1:
-        cont = 1
-        print("Which shape do you want to pick? (Rock/Paper/Scissors/Spock/Lizard)")
-        shapePlayer = str(input().lower())
-        if shapes.count(shapePlayer) == 0:
-            print("Please choose an existing shape!")
-        else:
-            countValues[shapePlayer] += 1
-            shapeCPU = pickCPU()
-            countValues[shapeCPU] += 1
-            print("\nYou picked: ", shapePlayer.upper())
-            print("The CPU picked: ", shapeCPU.upper())
-            win = checkWinner(shapePlayer, shapeCPU)
-            print("\nThe result is: ", win)
-
-            while cont == 1:
-                print("\nDo you want to play again? (yes/no)")
-                decision = input().lower()
-                if decision == "yes":
-                    gameStatus = 1
-                    cont = 0
-                elif decision == "no":
-                    f = open("save.txt", "r")
-                    new = json.loads(f.read())
-                    f.close()
-
-                    if new == "" or new == "null" or new is None:
-                        newDict = countValues
-                    else:
-                        newDict = combine(new, countValues)
-
-                    f = open("save.txt", "w")
-
-                    f.write(json.dumps(newDict))
-                    print(newDict)
-                    f.close()
-
-                    cont = 0
-                    gameStatus = 0
+    while wrong == 1:
+        print("What action do you want to perform?")
+        print("     --START GAME (play)")
+        print("     --SHOW STATS (stats)")
+        print("     --UPDATE STATS (save)")
+        print("     --RESET STATS (reset)")
+        print("     --EXIT (exit)")
+        choice = str(input().lower())
+        if choice == "play":
+            gameStatus = 1
+            while gameStatus == 1:
+                print("Which shape do you want to pick? (Rock/Paper/Scissors/Spock/Lizard)")
+                shapePlayer = str(input().lower())
+                if shapes.count(shapePlayer) == 0:
+                    print("Please choose an existing shape!")
                 else:
+                    countValues[shapePlayer] += 1
+                    shapeCPU = pickCPU()
+                    print("\nYou picked: ", shapePlayer.upper())
+                    print("The CPU picked: ", shapeCPU.upper())
+                    win = checkWinner(shapePlayer, shapeCPU)
+                    print("\nThe result is: ", win)
                     cont = 1
-                    gameStatus = 0
+                    while cont == 1:
+                        print("\nDo you want to play again? (yes/no)")
+                        decision = input().lower()
+                        if decision == "yes":
+                            gameStatus = 1
+                            cont = 0
+                        elif decision == "no":
+                            cont = 0
+                            gameStatus = 0
+                        else:
+                            cont = 1
+                            gameStatus = 0
+            wrong = 1
+        elif choice == "stats":
+            print(dataFile)
+            print()
+            wrong = 1
+        elif choice == "save":
+            update()
+            print("Your stats have been updatet!\n")
+            wrong = 1
+        elif choice == "reset":
+            reset()
+            print("Saved data has been reset!\n")
+            wrong = 1
+        elif choice == "exit":
+            print("Until next time!")
+            wrong = 0
+        else:
+            wrong = 1
+            print("Please enter a valid command!\n")
 
 
 if __name__ == '__main__':
