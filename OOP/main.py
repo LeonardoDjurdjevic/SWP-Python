@@ -1,9 +1,67 @@
-
 class Firma:
-    pass
+    def __init__(self, firmenname, abteilungen):
+        self.firmenname = firmenname
+        self.abteilungen = abteilungen
+
+    def __str__(self):
+        abteilungString = ""
+        for a in self.abteilungen:
+            abteilungString += a.__str__() + "\n"
+        return "{0} \n\n{1}".format(self.firmenname, abteilungString)
+
+    def zaehleMitarbeiter(self):
+        anzahl = 0
+        for a in self.abteilungen:
+            anzahl += a.zaehlePersonen()
+        return "Anzahl der Mitarbeiter: {0}".format(anzahl)
+
+    def zaehleAbteilungen(self):
+        return "Anzahl der Abteilungen: {0}".format(len(self.abteilungen))
+
+    def staerksteAbteilung(self):
+        anzahlPersonen = self.abteilungen[0].zaehlePersonen()
+        for a in self.abteilungen:
+            if a.zaehlePersonen() > anzahlPersonen:
+                anzahlPersonen = a.zaehlePersonen()
+        return "Die staerkste Abteilung ist: {0}".format(anzahlPersonen)
+
+    def anteilGeschlechter(self):
+        anzahlMaenner = 0
+        anzahlFrauen = 0
+        for a in self.abteilungen:
+            anzahlMaenner += a.anzahlGeschlechter()[0]
+            anzahlFrauen += a.anzahlGeschlechter()[1]
+        prozentMaenner = (anzahlMaenner / (anzahlMaenner + anzahlFrauen)) * 100
+        prozentFrauen = (anzahlFrauen / (anzahlMaenner + anzahlFrauen)) * 100
+        return "Anteil Männer und Frauen im Unternehmen: {0} - {1}".format(prozentMaenner, prozentFrauen)
+
 
 class Abteilung:
-    pass
+    def __init__(self, abteilungsname, abteilungsleiter, personen):
+        self.abteilungsname = abteilungsname
+        self.abteilungsleiter = abteilungsleiter
+        self.mitarbeiter = personen
+
+    def __str__(self):
+        mitarbeiterString = ""
+        for m in self.mitarbeiter:
+            mitarbeiterString += m.__str__() + "\n\t\t"
+        return "Name der Abteilung: {0} \n\t Leiter: {1} {2}\n\t Mitarbeiter: \n\t\t{3}\n".format(
+            self.abteilungsname, self.abteilungsleiter.vorname, self.abteilungsleiter.nachname, mitarbeiterString)
+
+    def zaehlePersonen(self):
+        return len(self.mitarbeiter) + 1
+
+    def anzahlGeschlechter(self):
+        frauen = 0
+        maenner = 0
+        for m in self.mitarbeiter:
+            if m.geschlecht == "männlich":
+                maenner += 1
+            elif m.geschlecht == "weiblich":
+                frauen += 1
+        return maenner, frauen
+
 
 class Person:
     def __init__(self, vorname, nachname, geburtstag, geschlecht, email):
@@ -41,18 +99,31 @@ class Abteilungsleiter(Person):
 
 
 if __name__ == '__main__':
-    p1 = Person("Leonardo", "Djurdjevic", "männlich", "20.03.2004", "ldjurdjevictsn.at")
-    p2 = Person("Melihgazi", "Esen", "männlich", "06.01.2004", "meesen@tsn.at")
-    p3 = Person("Mert", "Cetinkaya", "weiblich", "04.02.2004", "mcetinkaya@tsn.at")
-    p4 = Person("Luca", "Dietz", "weiblich", "19.07.2004", "ldietz@tsn.at")
-    p5 = Person("Kristof", "Csölle", "männlich", "31.12.2002", "kcsoelle@tsn.at")
-    p6 = Person("Noel", "Klapeer", "männlich", "09.02.2004", "nklapeer@tsn.at")
-    p7 = Person("Jakob", "Resch", "männlich", "22.07.2004", "jresch@tsn.at")
-    p8 = Person("Noah", "Muigg", "männlich", "17.04.2004", "nklapeer@tsn.at")
-    p9 = Person("Niklas", "Sillaber", "männlich", "")
+    m1 = Mitarbeiter("Melihgazi", "Esen", "männlich", "06.01.2004", "meesen@tsn.at", 1, 1100)
+    m2 = Mitarbeiter("Luca", "Dietz", "weiblich", "19.07.2004", "ldietz@tsn.at", 2, 1300)
+    m3 = Mitarbeiter("Kristof", "Csölle", "männlich", "31.12.2002", "kcsoelle@tsn.at", 3, 900)
+    m4 = Mitarbeiter("Noel", "Klapeer", "männlich", "09.02.2004", "nklapeer@tsn.at", 4, 1400)
+    m5 = Mitarbeiter("Noah", "Muigg", "männlich", "17.04.2004", "nklapeer@tsn.at", 5, 1000)
+    m6 = Mitarbeiter("Niklas", "Sillaber", "männlich", "19.09.2003", "nsillaber@tsn.at", 6, 1200)
 
-    a1 = Abteilungsleiter(p1.vorname, p1.nachname, p1.geschlecht, p1.geburtstag, p1.email, 1, 5000)
-    a2 = Abteilungsleiter(p3.vorname, p3.nachname, p3.geschlecht, p3.geburtstag, p3.email, 2, 4500)
-    a3 = Abteilungsleiter(p7.vorname, p7.nachname, p7.geschlecht, p7.geburtstag, p7.email, 2, 4400)
+    a1 = Abteilungsleiter("Leonardo", "Djurdjevic", "männlich", "20.03.2004", "ldjurdjevictsn.at", 1, 5000)
+    a2 = Abteilungsleiter("Mert", "Cetinkaya", "weiblich", "04.02.2004", "mcetinkaya@tsn.at", 2, 4500)
+    a3 = Abteilungsleiter("Jakob", "Resch", "männlich", "22.07.2004", "jresch@tsn.at", 3, 4400)
 
-    print(a1)
+    mitarbeiterAbteilung1 = [m1, m2]
+    mitarbeiterAbteilung2 = [m3, m4]
+    mitarbeiterAbteilung3 = [m5, m6]
+
+    abteilung1 = Abteilung("IT-Abteilung", a1, mitarbeiterAbteilung1)
+    abteilung2 = Abteilung("Reinigungskräfte", a2, mitarbeiterAbteilung2)
+    abteilung3 = Abteilung("Büro", a3, mitarbeiterAbteilung3)
+
+    listAbteilungen = [abteilung1, abteilung2, abteilung3]
+
+    firma = Firma("Pfusch GmbH", listAbteilungen)
+
+    print(firma)
+    print(firma.zaehleMitarbeiter())
+    print(firma.zaehleAbteilungen())
+    print(firma.staerksteAbteilung())
+    print(firma.anteilGeschlechter())
